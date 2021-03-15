@@ -20,6 +20,9 @@ abstract class nspages_printer {
     protected $_displayModificationDate;
     protected $_sorter;
 
+    // Static to prevent conflicts if there are several <nspages> tag in a same page
+    static private $builtSectionIds = array();
+
     function __construct($plugin, $mode, $renderer, $data){
       $this->plugin = $plugin;
       $this->renderer =& $renderer;
@@ -129,7 +132,22 @@ abstract class nspages_printer {
           $linkText = '[' . date('Y-m-d', $item["mtime"]) . '] - ';
         }
         $linkText .= $item['nameToDisplay'];
+        if ( $this->mode == "xhtml" ){ // TODO: handle other mode as well?
+          // TODO: handle the case where the option isn't activated
+          $anchorId = self::buildAnchorId($item);
+          $this->renderer->doc .= '<span id="' . $anchorId . '">';
+          $this->renderer->toc_additem($anchorId, $linkText, $this->renderer->getLastLevel() + 1);
+
+        }
         $this->renderer->internallink(':'.$item['id'], $linkText);
+        if ( $this->mode == "xhtml" ){
+          $this->renderer->doc .= "</span>";
+        }
+    }
+
+    private function buildAnchorId($item){
+      // Prefix with "nspages_" to avoid collisions with headers
+      return "nspages_" . sectionID($item['id'], self::$builtSectionIds);
     }
 
     protected function _printElementClose() {
