@@ -19,7 +19,7 @@ abstract class nspages_printer {
     private $dictOrder;
     protected $_displayModificationDate;
     protected $_sorter;
-    private $shouldIncludeItemsInTOC
+    private $shouldIncludeItemsInTOC;
 
     // Static to prevent conflicts if there are several <nspages> tag in a same page
     static private $builtSectionIds = array();
