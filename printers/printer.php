@@ -19,6 +19,7 @@ abstract class nspages_printer {
     private $dictOrder;
     protected $_displayModificationDate;
     protected $_sorter;
+    private $shouldIncludeItemsInTOC
 
     // Static to prevent conflicts if there are several <nspages> tag in a same page
     static private $builtSectionIds = array();
@@ -35,6 +36,7 @@ abstract class nspages_printer {
       $this->_displayModificationDate = $data['displayModificationDate']
         || $data['modificationDateOnPictures']; // This is a deprecated option. We should kill it after checking no users are still using it
       $this->_sorter = $this->_getSorter($data['reverse']);
+      $this->includeItemsInTOC = $data['includeItemsInTOC'] && $mode === 'xhtml';
     }
 
     function printTOC($tab, $type, $text, $hideno){
@@ -132,15 +134,14 @@ abstract class nspages_printer {
           $linkText = '[' . date('Y-m-d', $item["mtime"]) . '] - ';
         }
         $linkText .= $item['nameToDisplay'];
-        if ( $this->mode == "xhtml" ){ // TODO: handle other mode as well?
-          // TODO: handle the case where the option isn't activated
+        if ($this->shouldIncludeItemsInTOC){ // TODO: handle other mode as well?
           $anchorId = self::buildAnchorId($item);
           $this->renderer->doc .= '<span id="' . $anchorId . '">';
           $this->renderer->toc_additem($anchorId, $linkText, $this->renderer->getLastLevel() + 1);
 
         }
         $this->renderer->internallink(':'.$item['id'], $linkText);
-        if ( $this->mode == "xhtml" ){
+        if ($this->shouldIncludeItemsInTOC){
           $this->renderer->doc .= "</span>";
         }
     }
