@@ -19,7 +19,7 @@ abstract class nspages_printer {
     private $dictOrder;
     protected $_displayModificationDate;
     protected $_sorter;
-    private $shouldIncludeItemsInTOC;
+    private $includeItemsInTOC;
 
     // Static to prevent conflicts if there are several <nspages> tag in a same page
     static private $builtSectionIds = array();
@@ -134,14 +134,14 @@ abstract class nspages_printer {
           $linkText = '[' . date('Y-m-d', $item["mtime"]) . '] - ';
         }
         $linkText .= $item['nameToDisplay'];
-        if ($this->shouldIncludeItemsInTOC){ // TODO: handle other mode as well?
+        if ($this->includeItemsInTOC){ // TODO: handle other mode as well?
           $anchorId = self::buildAnchorId($item);
           $this->renderer->doc .= '<span id="' . $anchorId . '">';
           $this->renderer->toc_additem($anchorId, $linkText, $this->renderer->getLastLevel() + 1);
 
         }
         $this->renderer->internallink(':'.$item['id'], $linkText);
-        if ($this->shouldIncludeItemsInTOC){
+        if ($this->includeItemsInTOC){
           $this->renderer->doc .= "</span>";
         }
     }
