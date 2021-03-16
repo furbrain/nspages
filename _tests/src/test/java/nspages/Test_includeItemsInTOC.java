@@ -1,9 +1,13 @@
 package nspages;
 
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class Test_includeItemsInTOC extends Helper {
     @Test
@@ -19,8 +23,12 @@ public class Test_includeItemsInTOC extends Helper {
         expectedLinks.add(new InternalLink(ns + ":start", "start", ""));
         assertSameLinks(expectedLinks);
 
-        // Assert the TOC doesn't have the links
-        //TODO
+        // Assert the TOC only has links for the normal headers
+        List<TOCLink> expectedTOCLinks = new ArrayList<>();
+        expectedTOCLinks.add(new TOCLink(1, getDriver().getCurrentUrl() + "#a", "A"));
+        expectedTOCLinks.add(new TOCLink(1, getDriver().getCurrentUrl() + "#b", "B"));
+        expectedTOCLinks.add(new TOCLink(1 ,getDriver().getCurrentUrl() + "#c", "C"));
+        assertSameTOC(expectedTOCLinks);
 
     }
 
@@ -38,7 +46,15 @@ public class Test_includeItemsInTOC extends Helper {
         assertSameLinks(expectedLinks);
 
         // Assert the TOC has the expected links
-        //TODO
+        List<TOCLink> expectedTOCLinks = new ArrayList<>();
+        expectedTOCLinks.add(new TOCLink(1, getDriver().getCurrentUrl() + "#a", "A"));
+        expectedTOCLinks.add(new TOCLink(1, getDriver().getCurrentUrl() + "#b", "B"));
+        expectedTOCLinks.add(new TOCLink(1 ,getDriver().getCurrentUrl() + "#c", "C"));
+        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "astart", "a"));
+        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "aastart", "aa"));
+        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "bstart", "b"));
+        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "start", "start"));
+        assertSameTOC(expectedTOCLinks);
     }
 
     //TODO: test with the "usePictures" printer
@@ -63,6 +79,59 @@ public class Test_includeItemsInTOC extends Helper {
         expectedLinks.add(new InternalLink(ns + ":b:start", "b", "nspages_" + ns + "bstart1"));
         expectedLinks.add(new InternalLink(ns + ":start", "start", "nspages_" + ns + "start1"));
         assertSameLinks(expectedLinks);
+    }
+
+    private void assertSameTOC(List<TOCLink> expectedLinks){
+        List<TOCLink> actualLinks = getActualTocLinks();
+
+        assertEquals(expectedLinks.size(), actualLinks.size());
+        for(int numLink = 0 ; numLink < expectedLinks.size() ; numLink++ ){
+            assertEquals(expectedLinks.get(numLink), actualLinks.get(numLink));
+        }
+    }
+
+    private List<TOCLink> getActualTocLinks(){
+        WebElement tocRoot = getDriver().findElement(By.id("dw__toc"));
+        return getTocLevelLinks(tocRoot, 1);
+    }
+
+    private List<TOCLink> getTocLevelLinks(WebElement currentRoot, int nextLevel){
+        List<TOCLink> tocLevelLinks = new ArrayList<>();
+        for(WebElement nextLevelItem : currentRoot.findElements(By.className("level" + nextLevel))){
+            WebElement link = nextLevelItem.findElement(By.xpath("./div/a"));
+            tocLevelLinks.add(new TOCLink(nextLevel, link.getAttribute("href"), link.getAttribute("innerHTML")));
+            tocLevelLinks.addAll(getTocLevelLinks(nextLevelItem, nextLevel+1));
+        }
+        return tocLevelLinks;
+    }
+
+    class TOCLink {
+        private int level;
+        private String target;
+        private String text;
+
+        public TOCLink(int level, String target, String text){
+            this.level = level;
+            this.target = target;
+            this.text = text;
+        }
+
+        public int level(){return level;}
+        public String target(){return target;}
+        public String text(){return text;}
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {return false;}
+            if (obj.getClass() != this.getClass()) {return false;}
+            final TOCLink other = (TOCLink) obj;
+            return other.level == level && other.target.equals(target) && other.text.equals(text);
+        }
+
+        @Override
+        public String toString(){
+            return "TOCLink[" + level + ", " + target + ", " + text + "]";
+        }
     }
 
     private static String addTitlesInOrderToHaveAToc(String pageContent){
