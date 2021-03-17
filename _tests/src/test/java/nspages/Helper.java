@@ -129,7 +129,7 @@ public class Helper {
 	 * - or on the grand parent span (for the link of the current page)
      * @return the html id if one is found, or null if there is none
 	 */
-	private String getHtmlId(WebElement link){
+	protected String getHtmlId(WebElement link){
 		List<WebElement> children = link.findElements(By.tagName("div"));
 		if (children.size() == 1){
 			// Case of the -usePictures printer
@@ -168,4 +168,13 @@ public class Helper {
 	public boolean pagesContains(String contained){
 		return driver.findElement(By.tagName("html")).getAttribute("innerHTML").contains(contained);
 	}
+
+	/**
+	 * For tests using -usePictures
+	 */
+	protected List<WebElement> getPictureLinks(){
+		WebElement wrapper = getDriver().findElement(By.className("nspagesPicturesModeMain"));
+		return wrapper.findElements(By.tagName("a"));
+	}
+
 }

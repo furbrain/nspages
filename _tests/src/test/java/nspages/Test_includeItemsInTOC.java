@@ -72,7 +72,6 @@ public class Test_includeItemsInTOC extends Helper {
 
     }
 
-    //TODO: test with the "usePictures" printer
     //TODO: test with the tree printer that the sublevels indentation are respected in TOC
 
     @Test
@@ -118,6 +117,53 @@ public class Test_includeItemsInTOC extends Helper {
         List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
         expectedTOCLinks.addAll(expectedNsPagesTOCLinks());
         expectedTOCLinks.addAll(expectedNsPagesTOCLinks("1"));
+        assertSameTOC(expectedTOCLinks);
+    }
+
+    /**
+     * the -usePictures printer doesn't use the same code as the other in order to implement this feature
+     * hence those ad hoc tests
+     */
+    @Test
+    public void withPicturesButNotTheOption(){
+        String ns = "ordre_alphabetique_ns";
+        generatePage(ns + ":start", addTitlesInOrderToHaveAToc("<nspages -subns -nopages -usePictures>"));
+
+        // Assert links don't have any html id
+        List<String> expectedIds = new ArrayList<>();
+        expectedIds.add("");
+        expectedIds.add("");
+        expectedIds.add("");
+        List<WebElement> actualPictures = getPictureLinks();
+        assertEquals(expectedIds.size(), actualPictures.size());
+        for(int idx=0 ; idx < expectedIds.size() ; idx++){
+            assertEquals(expectedIds.get(idx), getHtmlId(actualPictures.get(idx)));
+        }
+
+        // Assert the TOC doesn't have nspages
+        List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
+        assertSameTOC(expectedTOCLinks);
+    }
+
+    @Test
+    public void withPicturesAndOption(){
+        String ns = "ordre_alphabetique_ns";
+        generatePage(ns + ":start", addTitlesInOrderToHaveAToc("<nspages -subns -nopages -includeItemsInTOC -usePictures>"));
+
+        // Assert links have the expected html id
+        List<String> expectedIds = new ArrayList<>();
+        expectedIds.add("nspages_" + ns + "astart");
+        expectedIds.add("nspages_" + ns + "aastart");
+        expectedIds.add("nspages_" + ns + "bstart");
+        List<WebElement> actualPictures = getPictureLinks();
+        assertEquals(expectedIds.size(), actualPictures.size());
+        for(int idx=0 ; idx < expectedIds.size() ; idx++){
+            assertEquals(expectedIds.get(idx), getHtmlId(actualPictures.get(idx)));
+        }
+
+        // Assert the TOC has the expected links
+        List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
+        expectedTOCLinks.addAll(expectedNsPagesTOCLinksForNsOnly());
         assertSameTOC(expectedTOCLinks);
     }
 
@@ -184,23 +230,29 @@ public class Test_includeItemsInTOC extends Helper {
     }
 
     private List<TOCLink> expectedNsPagesTOCLinks(){
-        return expectedNsPagesTOCLinks("", 1);
+        return expectedNsPagesTOCLinks("", 1, true);
     }
 
     private List<TOCLink> expectedNsPagesTOCLinks(int lastTitleLevel){
-        return expectedNsPagesTOCLinks("", lastTitleLevel);
+        return expectedNsPagesTOCLinks("", lastTitleLevel, true);
     }
 
     private List<TOCLink> expectedNsPagesTOCLinks(String dedupIdPrefix){
-        return expectedNsPagesTOCLinks(dedupIdPrefix, 1);
+        return expectedNsPagesTOCLinks(dedupIdPrefix, 1, true);
     }
 
-    private List<TOCLink> expectedNsPagesTOCLinks(String dedupIdPrefix, int lastTitleLevel){
+    private List<TOCLink> expectedNsPagesTOCLinksForNsOnly(){
+        return expectedNsPagesTOCLinks("", 1, false);
+    }
+
+    private List<TOCLink> expectedNsPagesTOCLinks(String dedupIdPrefix, int lastTitleLevel, boolean withPages){
         List<TOCLink> expectedTOCLinks = new ArrayList<>();
         expectedTOCLinks.add(new TOCLink(1 + lastTitleLevel, getDriver().getCurrentUrl() + "#nspages_" + ns + "astart" + dedupIdPrefix, "a"));
         expectedTOCLinks.add(new TOCLink(1 + lastTitleLevel, getDriver().getCurrentUrl() + "#nspages_" + ns + "aastart" + dedupIdPrefix, "aa"));
         expectedTOCLinks.add(new TOCLink(1 + lastTitleLevel,getDriver().getCurrentUrl() + "#nspages_" + ns + "bstart" + dedupIdPrefix, "b"));
-        expectedTOCLinks.add(new TOCLink(1 + lastTitleLevel,getDriver().getCurrentUrl() + "#nspages_" + ns + "start" + dedupIdPrefix, "start"));
+        if (withPages) {
+            expectedTOCLinks.add(new TOCLink(1 + lastTitleLevel, getDriver().getCurrentUrl() + "#nspages_" + ns + "start" + dedupIdPrefix, "start"));
+        }
         return expectedTOCLinks;
     }
 }
