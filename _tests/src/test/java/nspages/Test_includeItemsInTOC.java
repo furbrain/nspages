@@ -10,9 +10,10 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class Test_includeItemsInTOC extends Helper {
+    private static final String ns = "ordre_alphabetique_ns";
+
     @Test
     public void withoutOption(){
-        String ns = "ordre_alphabetique_ns";
         generatePage(ns + ":start", addTitlesInOrderToHaveAToc("<nspages -subns>"));
 
         // Assert links (or their surrounding span) do not have any html id
@@ -24,7 +25,7 @@ public class Test_includeItemsInTOC extends Helper {
         assertSameLinks(expectedLinks);
 
         // Assert the TOC only has links for the normal headers
-        List<TOCLink> expectedTOCLinks = expectedFirstTOCLink();
+        List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
         assertSameTOC(expectedTOCLinks);
 
     }
@@ -43,11 +44,8 @@ public class Test_includeItemsInTOC extends Helper {
         assertSameLinks(expectedLinks);
 
         // Assert the TOC has the expected links
-        List<TOCLink> expectedTOCLinks = expectedFirstTOCLink();
-        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "astart", "a"));
-        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "aastart", "aa"));
-        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "bstart", "b"));
-        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "start", "start"));
+        List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
+        expectedTOCLinks.addAll(expectedNsPagesTOCLinks());
         assertSameTOC(expectedTOCLinks);
     }
 
@@ -75,15 +73,9 @@ public class Test_includeItemsInTOC extends Helper {
         assertSameLinks(expectedLinks);
 
         // Assert the TOC has links for both nspages tags and with correct id
-        List<TOCLink> expectedTOCLinks = expectedFirstTOCLink();
-        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "astart", "a"));
-        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "aastart", "aa"));
-        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "bstart", "b"));
-        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "start", "start"));
-        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "astart1", "a"));
-        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "aastart1", "aa"));
-        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "bstart1", "b"));
-        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "start1", "start"));
+        List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
+        expectedTOCLinks.addAll(expectedNsPagesTOCLinks());
+        expectedTOCLinks.addAll(expectedNsPagesTOCLinks("1"));
         assertSameTOC(expectedTOCLinks);
     }
 
@@ -111,10 +103,10 @@ public class Test_includeItemsInTOC extends Helper {
         return tocLevelLinks;
     }
 
-    class TOCLink {
-        private int level;
-        private String target;
-        private String text;
+    static class TOCLink {
+        private final int level;
+        private final String target;
+        private final String text;
 
         public TOCLink(int level, String target, String text){
             this.level = level;
@@ -141,11 +133,24 @@ public class Test_includeItemsInTOC extends Helper {
                 + pageContent;
     }
 
-    private List<TOCLink> expectedFirstTOCLink(){
+    private List<TOCLink> expectedFirstTOCLinks(){
         List<TOCLink> expectedFirstTOCLinks = new ArrayList<>();
         expectedFirstTOCLinks.add(new TOCLink(1, getDriver().getCurrentUrl() + "#a", "A"));
         expectedFirstTOCLinks.add(new TOCLink(1, getDriver().getCurrentUrl() + "#b", "B"));
         expectedFirstTOCLinks.add(new TOCLink(1 ,getDriver().getCurrentUrl() + "#c", "C"));
         return expectedFirstTOCLinks;
+    }
+
+    private List<TOCLink> expectedNsPagesTOCLinks(){
+        return expectedNsPagesTOCLinks("");
+    }
+
+    private List<TOCLink> expectedNsPagesTOCLinks(String dedupIdPrefix){
+        List<TOCLink> expectedTOCLinks = new ArrayList<>();
+        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "astart" + dedupIdPrefix, "a"));
+        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "aastart" + dedupIdPrefix, "aa"));
+        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "bstart" + dedupIdPrefix, "b"));
+        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "start" + dedupIdPrefix, "start"));
+        return expectedTOCLinks;
     }
 }
