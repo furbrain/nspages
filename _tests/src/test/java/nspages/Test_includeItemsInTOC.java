@@ -49,6 +49,29 @@ public class Test_includeItemsInTOC extends Helper {
         assertSameTOC(expectedTOCLinks);
     }
 
+    @Test
+    public void withOptionAndh1(){
+        String ns = "ordre_alphabetique_ns";
+        generatePage(ns + ":start", addTitlesInOrderToHaveAToc("<nspages -h1 -subns -includeItemsInTOC>"));
+
+        // Assert links (or their surrounding span) have the expected html id
+        List<InternalLink> expectedLinks = new ArrayList<>();
+        expectedLinks.add(new InternalLink(ns + ":aa:start", "aa", "nspages_" + ns + "aastart"));
+        expectedLinks.add(new InternalLink(ns + ":b:start", "Y", "nspages_" + ns + "bstart"));
+        expectedLinks.add(new InternalLink(ns + ":a:start", "Z", "nspages_" + ns + "astart"));
+        expectedLinks.add(new InternalLink(ns + ":start", "A", "nspages_" + ns + "start"));
+        assertSameLinks(expectedLinks);
+
+        // Assert the TOC has the expected links
+        List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
+        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "aastart", "aa"));
+        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "bstart", "Y"));
+        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_" + ns + "astart", "Z"));
+        expectedTOCLinks.add(new TOCLink(2 ,getDriver().getCurrentUrl() + "#nspages_" + ns + "start", "A"));
+        assertSameTOC(expectedTOCLinks);
+
+    }
+
     //TODO: test with the "usePictures" printer
     //TODO: test TOC indentation after a h2 last header
     //TODO: test with the tree printer that the sublevels indentation are respected in TOC
