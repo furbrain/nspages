@@ -70,8 +70,6 @@ public class Test_includeItemsInTOC extends Helper {
 
     }
 
-    //TODO: test with the tree printer that the sublevels indentation are respected in TOC
-
     @Test
     public void withAfterAH2Title(){
         generatePage(ns + ":start", addTitlesInOrderToHaveAToc("=====D=====\n<nspages -subns -includeItemsInTOC>"));
@@ -113,6 +111,57 @@ public class Test_includeItemsInTOC extends Helper {
         List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
         expectedTOCLinks.addAll(expectedNsPagesTOCLinks());
         expectedTOCLinks.addAll(expectedNsPagesTOCLinks("1"));
+        assertSameTOC(expectedTOCLinks);
+    }
+
+    /**
+     * the -tree printer is a bit more subtle as the others because the indentation of the links in the
+     * TOC should reflect the level of the entry in the tree
+     */
+    @Test
+    public void withTreeButNotTheOption(){
+        String treeRoot = "trees:standard_tree";
+        generatePage(treeRoot + ":page_at_root_level", addTitlesInOrderToHaveAToc("<nspages -r=3 -tree -subns -nopages -pagesInNs>"));
+
+        // Assert links (or their surrounding span) don't have a html id
+        List<InternalLink> expectedLinks = new ArrayList<>();
+        expectedLinks.add(new InternalLink(treeRoot + ":section1:start", "section1", ""));
+        expectedLinks.add(new InternalLink(treeRoot + ":section1:subsection1:start", "subsection1", ""));
+        expectedLinks.add(new InternalLink(treeRoot + ":section1:subsection2:start", "subsection2", ""));
+        expectedLinks.add(new InternalLink(treeRoot + ":section1:subsection3:start", "subsection3", ""));
+        expectedLinks.add(new InternalLink(treeRoot + ":section2:start", "section2", ""));
+        expectedLinks.add(new InternalLink(treeRoot + ":section3:start", "section3", ""));
+        WebElement nspagesRoot = getDriver().findElement(By.className("plugin_nspages"));
+        assertSameLinks(expectedLinks, nspagesRoot.findElements(By.tagName("a")));
+
+        // Assert the TOC doesn't have links to nspages items
+        List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
+        assertSameTOC(expectedTOCLinks);
+    }
+    @Test
+    public void withTreeAndTheOption(){
+        String treeRoot = "trees:standard_tree";
+        generatePage(treeRoot + ":page_at_root_level", addTitlesInOrderToHaveAToc("<nspages -r=3 -tree -subns -nopages -pagesInNs -includeItemsInTOC>"));
+
+        // Assert links (or their surrounding span) have the expected html id
+        List<InternalLink> expectedLinks = new ArrayList<>();
+        expectedLinks.add(new InternalLink(treeRoot + ":section1:start", "section1", "nspages_treesstandard_treesection1"));
+        expectedLinks.add(new InternalLink(treeRoot + ":section1:subsection1:start", "subsection1", "nspages_treesstandard_treesection1subsection1start"));
+        expectedLinks.add(new InternalLink(treeRoot + ":section1:subsection2:start", "subsection2", "nspages_treesstandard_treesection1subsection2start"));
+        expectedLinks.add(new InternalLink(treeRoot + ":section1:subsection3:start", "subsection3", "nspages_treesstandard_treesection1subsection3"));
+        expectedLinks.add(new InternalLink(treeRoot + ":section2:start", "section2", "nspages_treesstandard_treesection2start"));
+        expectedLinks.add(new InternalLink(treeRoot + ":section3:start", "section3", "nspages_treesstandard_treesection3start"));
+        WebElement nspagesRoot = getDriver().findElement(By.className("plugin_nspages"));
+        assertSameLinks(expectedLinks, nspagesRoot.findElements(By.tagName("a")));
+
+        // Assert the TOC has the links with the correct indentation level
+        List<TOCLink> expectedTOCLinks = expectedFirstTOCLinks();
+        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_treesstandard_treesection1", "section1"));
+        expectedTOCLinks.add(new TOCLink(3, getDriver().getCurrentUrl() + "#nspages_treesstandard_treesection1subsection1start", "subsection1"));
+        expectedTOCLinks.add(new TOCLink(3, getDriver().getCurrentUrl() + "#nspages_treesstandard_treesection1subsection2start", "subsection2"));
+        expectedTOCLinks.add(new TOCLink(3, getDriver().getCurrentUrl() + "#nspages_treesstandard_treesection1subsection3", "subsection3"));
+        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_treesstandard_treesection2start", "section2"));
+        expectedTOCLinks.add(new TOCLink(2, getDriver().getCurrentUrl() + "#nspages_treesstandard_treesection3start", "section3"));
         assertSameTOC(expectedTOCLinks);
     }
 

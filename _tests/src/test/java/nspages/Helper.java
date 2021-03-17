@@ -106,7 +106,7 @@ public class Helper {
 		assertSameLinks(expectedPagesLinks, actualPagesLinks);
 	}
 
-	private void assertSameLinks(List<InternalLink> expectedLinks, List<WebElement> actualLinks){
+	protected void assertSameLinks(List<InternalLink> expectedLinks, List<WebElement> actualLinks){
 		assertEquals(expectedLinks.size(), actualLinks.size());
 		for(int numLink = 0 ; numLink < expectedLinks.size() ; numLink++ ){
 			InternalLink expected = expectedLinks.get(numLink);
