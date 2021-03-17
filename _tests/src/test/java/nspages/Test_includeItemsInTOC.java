@@ -32,7 +32,6 @@ public class Test_includeItemsInTOC extends Helper {
 
     @Test
     public void withOption(){
-        String ns = "ordre_alphabetique_ns";
         generatePage(ns + ":start", addTitlesInOrderToHaveAToc("<nspages -subns -includeItemsInTOC>"));
 
         // Assert links (or their surrounding span) have the expected html id
@@ -51,7 +50,6 @@ public class Test_includeItemsInTOC extends Helper {
 
     @Test
     public void withOptionAndh1(){
-        String ns = "ordre_alphabetique_ns";
         generatePage(ns + ":start", addTitlesInOrderToHaveAToc("<nspages -h1 -subns -includeItemsInTOC>"));
 
         // Assert links (or their surrounding span) have the expected html id
@@ -76,7 +74,6 @@ public class Test_includeItemsInTOC extends Helper {
 
     @Test
     public void withAfterAH2Title(){
-        String ns = "ordre_alphabetique_ns";
         generatePage(ns + ":start", addTitlesInOrderToHaveAToc("=====D=====\n<nspages -subns -includeItemsInTOC>"));
 
         // Assert links (or their surrounding span) have the expected html id
@@ -96,7 +93,6 @@ public class Test_includeItemsInTOC extends Helper {
 
     @Test
     public void withTwoNspagesTagsIdsAreStillUnique(){
-        String ns = "ordre_alphabetique_ns";
         generatePage(ns + ":start", addTitlesInOrderToHaveAToc("<nspages -subns -includeItemsInTOC><nspages -subns -includeItemsInTOC>"));
 
         // Assert links (or their surrounding span) have the expected html id
@@ -126,7 +122,6 @@ public class Test_includeItemsInTOC extends Helper {
      */
     @Test
     public void withPicturesButNotTheOption(){
-        String ns = "ordre_alphabetique_ns";
         generatePage(ns + ":start", addTitlesInOrderToHaveAToc("<nspages -subns -nopages -usePictures>"));
 
         // Assert links don't have any html id
@@ -147,7 +142,6 @@ public class Test_includeItemsInTOC extends Helper {
 
     @Test
     public void withPicturesAndOption(){
-        String ns = "ordre_alphabetique_ns";
         generatePage(ns + ":start", addTitlesInOrderToHaveAToc("<nspages -subns -nopages -includeItemsInTOC -usePictures>"));
 
         // Assert links have the expected html id
