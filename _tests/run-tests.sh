@@ -1,4 +1,5 @@
 #!/bin/bash -e
+set -o pipefail
 
 if [ -L "$0" ] && [ -x "$(which readlink)" ]; then
 	THIS_FILE="$(readlink -mn "$0")"
