@@ -1,5 +1,13 @@
 #!/bin/bash -e
 
+if [ -L "$0" ] && [ -x "$(which readlink)" ]; then
+	THIS_FILE="$(readlink -mn "$0")"
+else
+	THIS_FILE="$0"
+fi
+THIS_DIR="$(dirname "$THIS_FILE")"
+
+pushd "$THIS_DIR"
 ./internal/dl_geckodriver.sh
 
 ./internal/dl_dw.sh
@@ -13,3 +21,4 @@ mkdir -p $TMPDIR
 
 # "grep -v" to discard some useless and noisy log
 mvn test 2>&1 | grep -v "console.warn: LoginRecipes:"
+popd
