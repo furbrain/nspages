@@ -19,6 +19,8 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "_tests/source.sh" }}
+      - run: sudo apt-get update
+      - run: sudo apt install maven
       - run: ./_tests/run-tests.sh
       - save_cache:
           key: v1-dependencies-{{ checksum "_tests/source.sh" }}
