@@ -29,3 +29,5 @@ jobs:
           key: v1-dependencies-{{ checksum "_tests/source.sh" }}
           paths:
             - ./_tests/dw_dl_cache/
+      - store_artifacts:
+          path: ./_tests/selenium_screenshot.png
