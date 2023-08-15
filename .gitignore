@@ -14,3 +14,4 @@ geckodriver*
 node_modules
 last_server_pid.txt
 temp_for_test_server_root
+selenium_screenshot.png
