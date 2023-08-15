@@ -1,4 +1,5 @@
 #!/bin/bash -e
+# to run with a headless browser, call this script with MOZ_HEADLESS=1
 set -o pipefail
 
 if [ -L "$0" ] && [ -x "$(which readlink)" ]; then

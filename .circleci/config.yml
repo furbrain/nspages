@@ -21,7 +21,10 @@ jobs:
             - v1-dependencies-{{ checksum "_tests/source.sh" }}
       - run: sudo apt-get update
       - run: sudo apt install maven
-      - run: ./_tests/run-tests.sh
+      - run:
+          command: ./_tests/run-tests.sh
+          environment:
+              MOZ_HEADLESS: 1
       - save_cache:
           key: v1-dependencies-{{ checksum "_tests/source.sh" }}
           paths:
