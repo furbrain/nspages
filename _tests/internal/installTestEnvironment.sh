@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 if [ -L "$0" ] && [ -x "$(which readlink)" ]; then
 	THIS_FILE="$(readlink -mn "$0")"
@@ -39,9 +39,12 @@ cp -r "$THIS_DIR"/../testEnvironment/data/* $destDir/data
 echo " Installing the plugin"
 pluginDir=$destDir/lib/plugins/nspages
 mkdir $pluginDir
-for item in $(find "$THIS_DIR"/../.. -maxdepth 1 -mindepth 1 | grep -v _test | grep -v .git); do
+
+pushd "$THIS_DIR/../.." # pushd to make sure we won't have "_test" in the path (it would "grep -v" everything)
+for item in $(find . -maxdepth 1 -mindepth 1 | grep -v _test | grep -v .git); do
   cp -r $item $pluginDir
 done
+popd
 
 echo " Reseting some mtimes"
 touch -t201504010020.00 $destDir/data/pages/ns1/a.txt
